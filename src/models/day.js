@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 
 const daySchema = new Schema(
   {
-    dayNumber: { type: Number, index: true },
+    dayNumber: Number,
     phase: String,
     phaseDescription: String,
 

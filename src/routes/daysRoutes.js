@@ -32,10 +32,10 @@ router.get('/search-multiple', searchLimiter, getSearchMultiple);
 router.get(
   '/lucky-day',
   heavyLimiter,
-  // validateParams({
-  //   key: { required: true, type: 'string' },
-  //   value: { required: true, type: 'number' },
-  // }),
+  validateParams({
+    key: { required: true, type: 'string' },
+    value: { required: true, type: 'string' },
+  }),
   getLuckyDay,
 );
 
