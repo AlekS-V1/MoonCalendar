@@ -22,7 +22,7 @@ export const heavyLimiter = rateLimit({
 
 // 2. CORS — дозволяємо доступ з фронту
 export const corsMiddleware = cors({
-  origin: ['http://localhost:3000', 'https://mooncalendar-6y3u.onrender.com/'],
+  origin: ['http://localhost:3000', 'https://moon-calendar-next.vercel.app/'],
   methods: ['GET'],
   allowedHeaders: ['Content-Type'],
 });
