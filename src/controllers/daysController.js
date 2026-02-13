@@ -3,6 +3,8 @@ import createHttpError from 'http-errors';
 import { cache } from '../service/cache.js';
 import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
+import { extractText } from '../service/extractText.js';
+import { containsWord } from '../service/wordMatch.js';
 // import { getMoonInfo } from '../service/moon.js';
 
 export const getDays = async (req, res) => {
@@ -65,24 +67,54 @@ export const getSearchMultiple = async (req, res) => {
   res.json({ results });
 };
 
-export const getLuckyDay = async (req, res) => {
-  const key = req.query.key;
-  const value = (req.query.value || '').toLowerCase();
-  if (!key || !value) return res.json({ result: null });
-  const today = new Date();
-  const year = today.getFullYear();
-  const days = await getYearCalendar(year);
-  const matched = days.filter((day) => {
-    const field = day.details?.[key];
-    return typeof field === 'string' && field.toLowerCase().includes(value);
-  });
-  if (!matched.length) return res.json({ result: null });
-  const nearest = matched.reduce(
-    (best, day) => {
-      const dist = Math.abs(new Date(day.date) - today);
-      return dist < best.dist ? { day, dist } : best;
-    },
-    { day: null, dist: Infinity },
-  ).day;
-  res.json({ result: nearest });
+export const getLuckyDay = async (req, res, next) => {
+  try {
+    const key = req.query.key;
+    const value = (req.query.value || '').toLowerCase().trim();
+
+    if (!key) {
+      throw createHttpError(400, { errors: ['key is required'] });
+    }
+    if (!value) {
+      throw createHttpError(400, { errors: ['value is required'] });
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // нормалізація
+
+    const year = today.getFullYear();
+    const days = await getYearCalendar(year);
+
+    // Пошук по конкретному ключу
+    const matched = days.filter((day) => {
+      const field = day.details?.[key];
+      if (!field) return false;
+
+      const texts = extractText(field);
+      return texts.some((t) => containsWord(t, value));
+    });
+
+    // 2. Відкидаємо минулі дні
+    const futureOnly = matched.filter((day) => {
+      const date = new Date(day.date);
+      date.setHours(0, 0, 0, 0);
+      return date >= today;
+    });
+    if (!futureOnly.length) {
+      return res.json({ result: [] });
+    }
+
+    // Сортуємо за близькістю до сьогодні
+    const sorted = futureOnly
+      .map((day) => ({
+        day,
+        dist: Math.abs(new Date(day.date) - today),
+      }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 5) // ТОП‑5
+      .map((item) => item.day);
+
+    res.json({ result: sorted });
+  } catch (err) {
+    next(err);
+  }
 };
