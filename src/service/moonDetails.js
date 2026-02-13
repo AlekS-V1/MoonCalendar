@@ -1,4 +1,3 @@
-// import { db } from './db.js';
 import { cache } from './cache.js';
 import { Day } from '../models/day.js';
 
@@ -8,9 +7,6 @@ export async function getAllMoonDetails() {
   if (cache.has(DETAILS_KEY)) return cache.get(DETAILS_KEY);
 
   const docs = await Day.find({}).lean();
-
-  // const col = (await db()).collection('moon_days');
-  // const docs = await col.find({}).toArray();
 
   cache.set(DETAILS_KEY, docs, 24 * 60 * 60 * 1000);
   return docs;
