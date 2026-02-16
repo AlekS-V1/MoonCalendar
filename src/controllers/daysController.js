@@ -3,8 +3,9 @@ import createHttpError from 'http-errors';
 import { cache } from '../service/cache.js';
 import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
-import { extractText } from '../service/extractText.js';
-import { containsWord } from '../service/wordMatch.js';
+// import { extractText } from '../service/extractText.js';
+// import { containsWord } from '../service/wordMatch.js';
+import { deepSearch } from '../service/deepSearch.js';
 // import { getMoonInfo } from '../service/moon.js';
 
 export const getDays = async (req, res) => {
@@ -86,11 +87,15 @@ export const getLuckyDay = async (req, res, next) => {
 
     // Пошук по конкретному ключу
     const matched = days.filter((day) => {
-      const field = day.details?.[key];
-      if (!field) return false;
+      const matches = deepSearch(day.details, { key, value });
 
-      const texts = extractText(field);
-      return texts.some((t) => containsWord(t, value));
+      return matches.length > 0;
+
+      // const field = day.details?.[key];
+      // if (!field) return false;
+
+      // const texts = extractText(field);
+      // return texts.some((t) => containsWord(t, value));
     });
 
     // 2. Відкидаємо минулі дні
