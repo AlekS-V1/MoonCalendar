@@ -1,39 +1,21 @@
-export function deepSearch(obj, { key, value }) {
+export function deepSearch(obj, targetKey, targetValue) {
   const results = [];
 
   function walk(node) {
     if (!node || typeof node !== 'object') return;
 
-    for (const [k, v] of Object.entries(node)) {
-      let keyMatch = false;
-      let valueMatch = false;
-
-      // Порівняння ключа
-      if (key && k === key) {
-        keyMatch = true;
-      }
-
-      // Порівняння значення (рядки, числа, булеві)
-      if (value) {
-        if (
-          typeof v === 'string' ||
-          typeof v === 'number' ||
-          typeof v === 'boolean'
-        ) {
-          if (String(v).toLowerCase().includes(value.toLowerCase())) {
-            valueMatch = true;
-          }
+    for (const [key, value] of Object.entries(node)) {
+      // Перевіряємо саме пару ключ=значення
+      if (key === targetKey) {
+        // Порівнюємо значення як рядки (як у твоєму коді)
+        if (String(value).toLowerCase().includes(targetValue.toLowerCase())) {
+          results.push({ key, value });
         }
       }
 
-      // Якщо збіг по ключу або значенню — додаємо
-      if (keyMatch || valueMatch) {
-        results.push({ key: k, value: v });
-      }
-
       // Рекурсія
-      if (typeof v === 'object') {
-        walk(v);
+      if (typeof value === 'object') {
+        walk(value);
       }
     }
   }

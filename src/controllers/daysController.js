@@ -87,8 +87,7 @@ export const getLuckyDay = async (req, res, next) => {
 
     // Пошук по конкретному ключу
     const matched = days.filter((day) => {
-      const matches = deepSearch(day.details, { key, value });
-
+      const matches = deepSearch(day.details, key, value);
       return matches.length > 0;
 
       // const field = day.details?.[key];
