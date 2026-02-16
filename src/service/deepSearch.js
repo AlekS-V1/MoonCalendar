@@ -1,3 +1,4 @@
+import extractText from './extractText.js';
 export function deepSearch(obj, targetKey, targetValue) {
   const results = [];
 
@@ -5,15 +6,17 @@ export function deepSearch(obj, targetKey, targetValue) {
     if (!node || typeof node !== 'object') return;
 
     for (const [key, value] of Object.entries(node)) {
-      // Перевіряємо саме пару ключ=значення
       if (key === targetKey) {
-        // Порівнюємо значення як рядки (як у твоєму коді)
-        if (String(value).toLowerCase().includes(targetValue.toLowerCase())) {
+        // Витягуємо весь текст із значення ключа
+        const texts = extractText(value).map((t) => t.toLowerCase().trim());
+        const val = targetValue.toLowerCase().trim();
+
+        // Суворий збіг: хоча б один елемент має бути точно рівний
+        if (texts.includes(val)) {
           results.push({ key, value });
         }
       }
 
-      // Рекурсія
       if (typeof value === 'object') {
         walk(value);
       }
