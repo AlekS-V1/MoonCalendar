@@ -1,4 +1,4 @@
-import extractText from './extractText.js';
+import { extractText } from './extractText.js';
 export function deepSearch(obj, targetKey, targetValue) {
   const results = [];
 
