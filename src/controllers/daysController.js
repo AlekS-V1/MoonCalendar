@@ -96,9 +96,11 @@ export const getLuckyDay = async (req, res, next) => {
       // const texts = extractText(field);
       // return texts.some((t) => containsWord(t, value));
     });
+    // видаляємо дублікати днів за _id, після фільтрації просто унікалізуємо масив
+    const uniqueMatched = [...new Map(matched.map((d) => [d._id, d])).values()];
 
     // 2. Відкидаємо минулі дні
-    const futureOnly = matched.filter((day) => {
+    const futureOnly = uniqueMatched.filter((day) => {
       const date = new Date(day.date);
       date.setHours(0, 0, 0, 0);
       return date >= today;

@@ -20,9 +20,6 @@ export function deepSearch(obj, targetKey, targetValue) {
       if (typeof value === 'object') {
         walk(value);
       }
-      console.log('FOUND KEY:', key, 'VALUE RAW:', value);
-      console.log('EXTRACTED TEXTS:', extractText(value));
-      console.log('TARGET:', targetValue);
     }
   }
 
