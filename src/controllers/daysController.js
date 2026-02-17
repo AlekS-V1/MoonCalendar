@@ -73,6 +73,10 @@ export const getLuckyDay = async (req, res, next) => {
     const key = req.query.key;
     const value = (req.query.value || '').trim();
 
+    console.log('=== Incoming request ===');
+    console.log('KEY:', key);
+    console.log('VALUE:', value);
+
     if (!key) {
       throw createHttpError(400, { errors: ['key is required'] });
     }
@@ -86,11 +90,23 @@ export const getLuckyDay = async (req, res, next) => {
     const year = today.getFullYear();
     const days = await getYearCalendar(year);
 
+    console.log('Loaded days:', days.length);
+
     // --- 1. Пошук по ключу та суворому значенню ---
     const matched = days.filter((day) => {
       const matches = deepSearch(day.details, key, value);
+
+      if (matches.length > 0) {
+        console.log(`MATCH FOUND in day ${day._id} (${day.date})`);
+        console.log('Matches:', matches);
+      } else {
+        console.log(`NO MATCH in day ${day._id}`);
+      }
+
       return matches.length > 0;
     });
+
+    console.log('Matched days before unique:', matched.length);
 
     // --- 2. Унікалізація днів за _id ---
     const unique = [];
@@ -100,17 +116,31 @@ export const getLuckyDay = async (req, res, next) => {
       if (!seen.has(item._id)) {
         unique.push(item);
         seen.add(item._id);
+      } else {
+        console.log(`DUPLICATE REMOVED: ${item._id}`);
       }
     }
+
+    console.log('Unique matched days:', unique.length);
 
     // --- 3. Відкидаємо минулі дні ---
     const futureOnly = unique.filter((day) => {
       const date = new Date(day.date);
       date.setHours(0, 0, 0, 0);
-      return date >= today;
+
+      const isFuture = date >= today;
+
+      if (!isFuture) {
+        console.log(`PAST DAY REMOVED: ${day._id} (${day.date})`);
+      }
+
+      return isFuture;
     });
 
+    console.log('Future-only days:', futureOnly.length);
+
     if (!futureOnly.length) {
+      console.log('=== FINAL RESULT: EMPTY ===');
       return res.json({ result: [] });
     }
 
@@ -124,8 +154,11 @@ export const getLuckyDay = async (req, res, next) => {
       .slice(0, 5)
       .map((item) => item.day);
 
+    console.log('=== FINAL RESULT COUNT:', sorted.length, ' ===');
+
     res.json({ result: sorted });
   } catch (err) {
+    console.error('ERROR in getLuckyDay:', err);
     next(err);
   }
 };

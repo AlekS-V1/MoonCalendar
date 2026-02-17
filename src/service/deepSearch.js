@@ -8,10 +8,18 @@ export function deepSearch(obj, targetKey, targetValue) {
 
     for (const [key, value] of Object.entries(node)) {
       if (key === targetKey) {
+        console.log('FOUND KEY:', key, 'RAW VALUE:', value);
+
         const texts = extractText(value).map((t) => normalize(t));
 
+        console.log('EXTRACTED TEXTS:', texts);
+        console.log('TARGET:', normalizedTarget);
+
         if (texts.includes(normalizedTarget)) {
+          console.log('STRICT MATCH SUCCESS');
           results.push({ key, value });
+        } else {
+          console.log('STRICT MATCH FAILED');
         }
       }
 
