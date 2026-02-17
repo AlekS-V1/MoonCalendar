@@ -97,10 +97,10 @@ export const getLuckyDay = async (req, res, next) => {
       const matches = deepSearch(day.details, key, value);
 
       if (matches.length > 0) {
-        console.log(`MATCH FOUND in day ${day._id} (${day.date})`);
+        console.log(`MATCH FOUND in day ${day.details?._id} (${day.date})`);
         console.log('Matches:', matches);
       } else {
-        console.log(`NO MATCH in day ${day._id}`);
+        console.log(`NO MATCH in day ${day.details?._id}`);
       }
 
       return matches.length > 0;
@@ -113,11 +113,17 @@ export const getLuckyDay = async (req, res, next) => {
     const seen = new Set();
 
     for (const item of matched) {
-      if (!seen.has(item._id)) {
+      const id = item.details?._id; // ← правильний шлях
+
+      if (!id) {
+        console.warn('WARNING: day without _id:', item);
+      }
+
+      if (!seen.has(id)) {
         unique.push(item);
-        seen.add(item._id);
+        seen.add(id);
       } else {
-        console.log(`DUPLICATE REMOVED: ${item._id}`);
+        console.log(`DUPLICATE REMOVED: ${id}`);
       }
     }
 
@@ -131,7 +137,7 @@ export const getLuckyDay = async (req, res, next) => {
       const isFuture = date >= today;
 
       if (!isFuture) {
-        console.log(`PAST DAY REMOVED: ${day._id} (${day.date})`);
+        console.log(`PAST DAY REMOVED: ${day.details?._id} (${day.date})`);
       }
 
       return isFuture;
