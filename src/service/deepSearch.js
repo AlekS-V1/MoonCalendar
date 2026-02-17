@@ -1,18 +1,16 @@
 import { extractText } from './extractText.js';
 export function deepSearch(obj, targetKey, targetValue) {
   const results = [];
+  const normalizedTarget = normalize(targetValue);
 
   function walk(node) {
     if (!node || typeof node !== 'object') return;
 
     for (const [key, value] of Object.entries(node)) {
       if (key === targetKey) {
-        // Витягуємо весь текст із значення ключа
-        const texts = extractText(value).map((t) => t.toLowerCase().trim());
-        const val = targetValue.toLowerCase().trim();
+        const texts = extractText(value).map((t) => normalize(t));
 
-        // Суворий збіг: хоча б один елемент має бути точно рівний
-        if (texts.includes(val)) {
+        if (texts.includes(normalizedTarget)) {
           results.push({ key, value });
         }
       }
@@ -25,4 +23,11 @@ export function deepSearch(obj, targetKey, targetValue) {
 
   walk(obj);
   return results;
+}
+
+function normalize(str) {
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:]/g, '');
 }

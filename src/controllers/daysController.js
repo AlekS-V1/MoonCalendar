@@ -71,7 +71,7 @@ export const getSearchMultiple = async (req, res) => {
 export const getLuckyDay = async (req, res, next) => {
   try {
     const key = req.query.key;
-    const value = (req.query.value || '').toLowerCase().trim();
+    const value = (req.query.value || '').trim();
 
     if (!key) {
       throw createHttpError(400, { errors: ['key is required'] });
@@ -79,44 +79,49 @@ export const getLuckyDay = async (req, res, next) => {
     if (!value) {
       throw createHttpError(400, { errors: ['value is required'] });
     }
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // нормалізація
+    today.setHours(0, 0, 0, 0);
 
     const year = today.getFullYear();
     const days = await getYearCalendar(year);
 
-    // Пошук по конкретному ключу
+    // --- 1. Пошук по ключу та суворому значенню ---
     const matched = days.filter((day) => {
       const matches = deepSearch(day.details, key, value);
       return matches.length > 0;
-
-      // const field = day.details?.[key];
-      // if (!field) return false;
-
-      // const texts = extractText(field);
-      // return texts.some((t) => containsWord(t, value));
     });
-    // видаляємо дублікати днів за _id, після фільтрації просто унікалізуємо масив
-    const uniqueMatched = [...new Map(matched.map((d) => [d._id, d])).values()];
 
-    // 2. Відкидаємо минулі дні
-    const futureOnly = uniqueMatched.filter((day) => {
+    // --- 2. Унікалізація днів за _id ---
+    const unique = [];
+    const seen = new Set();
+
+    for (const item of matched) {
+      if (!seen.has(item._id)) {
+        unique.push(item);
+        seen.add(item._id);
+      }
+    }
+
+    // --- 3. Відкидаємо минулі дні ---
+    const futureOnly = unique.filter((day) => {
       const date = new Date(day.date);
       date.setHours(0, 0, 0, 0);
       return date >= today;
     });
+
     if (!futureOnly.length) {
       return res.json({ result: [] });
     }
 
-    // Сортуємо за близькістю до сьогодні
+    // --- 4. Сортуємо за близькістю до сьогодні ---
     const sorted = futureOnly
       .map((day) => ({
         day,
         dist: Math.abs(new Date(day.date) - today),
       }))
       .sort((a, b) => a.dist - b.dist)
-      .slice(0, 5) // ТОП‑5
+      .slice(0, 5)
       .map((item) => item.day);
 
     res.json({ result: sorted });
