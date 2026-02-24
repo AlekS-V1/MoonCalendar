@@ -108,26 +108,33 @@ export const getLuckyDay = async (req, res, next) => {
 
     console.log('Matched days before unique:', matched.length);
 
-    // --- 2. Унікалізація днів за _id ---
+    // --- 2. Унікалізація днів за _id та датою ---
     const unique = [];
     const seen = new Set();
 
     for (const item of matched) {
-      const id = item.details?._id; // ← правильний шлях
+      const id = item.details?._id;
+      const date = item.date;
+      const uniqueKey = `${id}_${date}`;
 
       if (!id) {
         console.warn('WARNING: day without _id:', item);
       }
 
-      if (!seen.has(id)) {
+      if (!seen.has(uniqueKey)) {
         unique.push(item);
-        seen.add(id);
+        seen.add(uniqueKey);
       } else {
-        console.log(`DUPLICATE REMOVED: ${id}`);
+        console.log(`DUPLICATE REMOVED: ${uniqueKey}`);
       }
     }
 
     console.log('Unique matched days:', unique.length);
+
+    // Логування дат MATCH-ів перед фільтрацією futureOnly
+    unique.forEach((day) => {
+      console.log(`MATCH DAY: ${day.details?._id} (${day.date})`);
+    });
 
     // --- 3. Відкидаємо минулі дні ---
     const futureOnly = unique.filter((day) => {

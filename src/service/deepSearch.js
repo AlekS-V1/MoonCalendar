@@ -1,7 +1,7 @@
 import { extractText } from './extractText.js';
 export function deepSearch(obj, targetKey, targetValue) {
   const results = [];
-  const normalizedTarget = normalize(targetValue);
+  const strictTarget = String(targetValue);
 
   function walk(node) {
     if (!node || typeof node !== 'object') return;
@@ -10,12 +10,12 @@ export function deepSearch(obj, targetKey, targetValue) {
       if (key === targetKey) {
         console.log('FOUND KEY:', key, 'RAW VALUE:', value);
 
-        const texts = extractText(value).map((t) => normalize(t));
+        const texts = extractText(value).map((t) => String(t));
 
         console.log('EXTRACTED TEXTS:', texts);
-        console.log('TARGET:', normalizedTarget);
+        console.log('TARGET:', strictTarget);
 
-        if (texts.includes(normalizedTarget)) {
+        if (texts.includes(strictTarget)) {
           console.log('STRICT MATCH SUCCESS');
           results.push({ key, value });
         } else {
@@ -31,11 +31,4 @@ export function deepSearch(obj, targetKey, targetValue) {
 
   walk(obj);
   return results;
-}
-
-function normalize(str) {
-  return String(str)
-    .toLowerCase()
-    .trim()
-    .replace(/[.,!?;:]/g, '');
 }
