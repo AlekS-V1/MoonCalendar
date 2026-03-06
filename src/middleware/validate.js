@@ -44,6 +44,10 @@ export function validateParams(rules) {
           errors.push(`${key} must be one of: ${rule.enum.join(', ')}`);
         }
       }
+
+      if (rule.pattern && !rule.pattern.test(value)) {
+        errors.push(`${key} has invalid format`);
+      }
     }
 
     if (errors.length > 0) {

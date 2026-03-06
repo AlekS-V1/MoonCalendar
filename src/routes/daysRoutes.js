@@ -6,6 +6,7 @@ import {
   getMonth,
   getSearchMultiple,
   getToday,
+  getMoonDayByDate,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -37,6 +38,14 @@ router.get(
     value: { required: true, type: 'string' },
   }),
   getLuckyDay,
+);
+
+router.get(
+  '/moon-day',
+  validateParams({
+    date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
+  }),
+  getMoonDayByDate,
 );
 
 export default router;

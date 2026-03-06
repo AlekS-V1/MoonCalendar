@@ -3,10 +3,8 @@ import createHttpError from 'http-errors';
 import { cache } from '../service/cache.js';
 import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
-// import { extractText } from '../service/extractText.js';
-// import { containsWord } from '../service/wordMatch.js';
 import { deepSearch } from '../service/deepSearch.js';
-// import { getMoonInfo } from '../service/moon.js';
+import { getMoonDayFromString } from '../service/moon.js';
 
 export const getDays = async (req, res) => {
   const moonDay = await Day.find();
@@ -24,14 +22,6 @@ export const getDayId = async (req, res) => {
 };
 
 export const getToday = async (req, res) => {
-  // try {
-  //   const info = await getMoonInfo(new Date());
-  //   res.status(200).json(info);
-  // } catch (err) {
-  //   console.error('Moon calc error:', err);
-  //   res.status(500).json({ error: 'Moon calculation failed' });
-  // }
-
   const key = 'today';
   if (cache.has(key)) return res.json(cache.get(key));
   const data = await buildToday();
@@ -139,7 +129,7 @@ export const getLuckyDay = async (req, res, next) => {
     // --- 3. Відкидаємо минулі дні ---
     const futureOnly = unique.filter((day) => {
       const date = new Date(day.date);
-      date.setHours(0, 0, 0, 0);
+      date.setHours(12, 0, 0, 0);
 
       const isFuture = date >= today;
 
@@ -172,6 +162,25 @@ export const getLuckyDay = async (req, res, next) => {
     res.json({ result: sorted });
   } catch (err) {
     console.error('ERROR in getLuckyDay:', err);
+    next(err);
+  }
+};
+
+// --- 5. Пошук місячного дня за датою календаря ---
+
+export const getMoonDayByDate = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required (YYYY-MM-DD)' });
+    }
+
+    const result = await getMoonDayFromString(date);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
     next(err);
   }
 };
