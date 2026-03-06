@@ -5,6 +5,8 @@ import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
 import { deepSearch } from '../service/deepSearch.js';
 import { getMoonDayFromString } from '../service/moon.js';
+import { getAllMoonDetails, getAllValues } from '../service/moonDetails.js';
+import { formatMoonDay } from '../service/formatSearch.js';
 
 export const getDays = async (req, res) => {
   const moonDay = await Day.find();
@@ -46,16 +48,49 @@ export const getSearchMultiple = async (req, res) => {
     .map((t) => t.trim().toLowerCase())
     .filter(Boolean);
   if (!terms.length) return res.json({ results: [] });
+
+  // 1. Отримуємо всі описи з вашого кешу
+  const allDetails = await getAllMoonDetails();
+
+  // 2. Фільтруємо описи, які містять пошукові терміни
+  const matchedDetails = allDetails
+    .filter((detail) => {
+      const text = getAllValues(detail).join(' ').toLowerCase();
+      return terms.every((t) => text.includes(t));
+    })
+    .map((d) => d.dayNumber);
+
+  // Створюємо карту (Map) для швидкого доступу: { dayNumber: detailObject }
+  // const detailsLookup = {};
+  // matchedDetails.forEach((d) => {
+  //   detailsLookup[d.dayNumber] = d;
+  // });
+
+  // 3. Отримуємо календар на рік
   const year = new Date().getFullYear();
   const days = await getYearCalendar(year);
-  const results = days.filter((day) => {
-    const text = Object.values(day.details || {})
-      .filter((v) => typeof v === 'string')
-      .join(' ')
-      .toLowerCase();
-    return terms.every((t) => text.includes(t));
+
+  // 4. Формуємо результат: дата + повний опис
+  const results = days
+    .filter((day) => matchedDetails.includes(day.moonDay)) // Беремо лише дні з відповідним moonDay
+    .map((day) => {
+      const detail = allDetails.find((d) => d.dayNumber === day.moonDay); // Додаємо знайдений опис прямо в об'єкт
+      return formatMoonDay(day, detail);
+    });
+  // const text = Object.values(day.details || {})
+  //   .filter((v) => typeof v === 'string')
+  //   .join(' ')
+  //   .toLowerCase();
+  // return terms.every((t) => text.includes(t));
+
+  res.json({
+    meta: {
+      year,
+      totalFound: results.length,
+      query: terms,
+    },
+    results,
   });
-  res.json({ results });
 };
 
 export const getLuckyDay = async (req, res, next) => {

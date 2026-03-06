@@ -26,3 +26,16 @@ export async function getDetailsByDayNumber(dayNumber) {
   const map = await getDetailsMap();
   return map[dayNumber] || null;
 }
+
+// Використовуємо рекурсивну функцію для збору тексту
+export const getAllValues = (obj) => {
+  let values = [];
+  for (const key in obj) {
+    if (typeof obj[key] === 'string') {
+      values.push(obj[key]);
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      values = values.concat(getAllValues(obj[key]));
+    }
+  }
+  return values;
+};
