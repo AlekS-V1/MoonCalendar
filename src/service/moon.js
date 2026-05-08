@@ -242,9 +242,32 @@ export function getMoonAge(date) {
   return (date - getNewMoon(date)) / 86400000;
 }
 
+// export function getMoonDay(date) {
+//   const start = getNewMoon(date); // молодик поточного місяця
+
+//   // знайти наступний молодик
+//   const next = getNewMoon(new Date(start.getTime() + 20 * 86400000));
+
+//   const daysInMonth = Math.floor((next - start) / 86400000); // 29 або 30
+
+//   let moonDay = Math.floor((date - start) / 86400000) + 1;
+
+//   // --- ГОЛОВНЕ: якщо день виходить за межі місяця ---
+//   if (moonDay > daysInMonth) {
+//     moonDay = moonDay - daysInMonth; // почати наступний місяць з 1
+//   }
+
+//   return moonDay;
+// }
 export function getMoonDay(date) {
   return Math.floor(getMoonAge(date)) + 1;
 }
+
+// export function getMoonPhase(date) {
+//   const start = getNewMoon(date);
+//   const age = (date - start) / 86400000;
+//   return (age % SYNODIC_MONTH) / SYNODIC_MONTH;
+// }
 
 export function getMoonPhase(date) {
   const age = getMoonAge(date);
