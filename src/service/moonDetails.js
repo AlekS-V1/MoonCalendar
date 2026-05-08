@@ -13,12 +13,15 @@ export async function getAllMoonDetails() {
   cache.set(DETAILS_KEY, docs, 24 * 60 * 60 * 1000);
   return docs;
 }
-
+// 1. Отримати всі документи phases (з кешем)
 export async function getAllPhasesDetails() {
-  if (cache.has(PHASEDETAILS_KEY)) return cache.get(PHASEDETAILS_KEY);
+  if (cache.has(PHASEDETAILS_KEY)) {
+    return cache.get(PHASEDETAILS_KEY);
+  }
   const phaseDocs = await Phase.find({}).lean();
-
+  // Кешуємо на 24 години
   cache.set(PHASEDETAILS_KEY, phaseDocs, 24 * 60 * 60 * 1000);
+  console.log('PHASE DOCS RAW:', phaseDocs);
 
   return phaseDocs;
 }
@@ -33,13 +36,25 @@ export async function getDetailsMap() {
   return map;
 }
 
+// Локальний кеш для мапи (не TTL, оновлюється разом із PHASEDETAILS_KEY)
+let phaseMapCache = null;
+
+// 2. Створити мапу { phaseNumber: phaseData }
 export async function getDetailsPhaseMap() {
+  if (phaseMapCache) {
+    return phaseMapCache;
+  }
   const phaseDocs = await getAllPhasesDetails();
   const phaseMap = {};
   phaseDocs.forEach((d) => {
-    const { phaseNumber, ...rest } = d;
-    phaseMap[phaseNumber] = rest;
+    const num = Number(d.phaseNumber);
+    phaseMap[num] = d;
+
+    // const { phaseNumber, ...rest } = d;
+    // phaseMap[phaseNumber] = rest;
   });
+
+  phaseMapCache = phaseMap;
   return phaseMap;
 }
 
@@ -48,6 +63,7 @@ export async function getDetailsByDayNumber(dayNumber) {
   return map[dayNumber] || null;
 }
 
+// 3. Отримати дані за номером фази
 export async function getDetailsByPhaseNumber(phaseNumber) {
   const phaseMap = await getDetailsPhaseMap();
   return phaseMap[phaseNumber] || null;

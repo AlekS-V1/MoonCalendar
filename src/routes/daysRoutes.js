@@ -7,6 +7,9 @@ import {
   getSearchMultiple,
   getToday,
   getMoonDayByDate,
+  getAllPhases,
+  getPhaseByMoonDay,
+  getPhaseByNumber,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -47,5 +50,9 @@ router.get(
   }),
   getMoonDayByDate,
 );
+
+router.get('/phases', getAllPhases);
+router.get('/byphase', getPhaseByNumber);
+router.get('/phasebyday', getPhaseByMoonDay);
 
 export default router;

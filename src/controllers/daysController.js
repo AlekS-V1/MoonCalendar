@@ -5,7 +5,12 @@ import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
 import { deepSearch } from '../service/deepSearch.js';
 import { getMoonDayFromString } from '../service/moon.js';
-import { getAllMoonDetails, getAllValues } from '../service/moonDetails.js';
+import {
+  getAllMoonDetails,
+  getAllPhasesDetails,
+  getAllValues,
+  getDetailsByPhaseNumber,
+} from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
 
 export const getDays = async (req, res) => {
@@ -219,3 +224,66 @@ export const getMoonDayByDate = async (req, res, next) => {
     next(err);
   }
 };
+
+//  -- PHASES --
+
+// GET /phases — повертає всі фази
+export async function getAllPhases(req, res) {
+  try {
+    const phases = await getAllPhasesDetails();
+    res.json(phases);
+  } catch (error) {
+    console.error('Error in getAllPhases:', error);
+    res.status(500).json({ error: 'Failed to load phases' });
+  }
+}
+
+// GET /byphase?phaseNumber=3
+
+export async function getPhaseByNumber(req, res) {
+  try {
+    const phaseNumber = Number(req.query.phaseNumber);
+
+    if (!phaseNumber) {
+      return res.status(400).json({ error: 'phaseNumber is required' });
+    }
+    const phase = await getDetailsByPhaseNumber(phaseNumber);
+    if (!phase) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    return res.json(phase);
+  } catch (error) {
+    console.error('Error in getPhaseByNumber:', error);
+    res.status(500).json({ error: 'Failed to load phase' });
+  }
+}
+
+// GET /phasebyday?moonDay=5
+export async function getPhaseByMoonDay(req, res) {
+  try {
+    const moonDay = Number(req.query.moonDay);
+
+    if (!moonDay) {
+      return res.status(400).json({ error: 'moonDay is required' });
+    }
+
+    // Мапінг moonDay → phaseNumber
+    let phaseNumber = 1;
+    if (moonDay >= 1 && moonDay <= 7) phaseNumber = 1;
+    else if (moonDay >= 8 && moonDay <= 14) phaseNumber = 2;
+    else if (moonDay >= 15 && moonDay <= 22) phaseNumber = 3;
+    else phaseNumber = 4; // 23–29/30
+
+    const phase = await getDetailsByPhaseNumber(phaseNumber);
+
+    if (!phase) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    res.json(phase);
+  } catch (err) {
+    console.error('Error in getPhaseByMoonDay:', err);
+    res.status(500).json({ error: 'Failed to load phase' });
+  }
+}
