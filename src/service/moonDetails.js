@@ -1,9 +1,11 @@
 import { cache } from './cache.js';
 import { Day } from '../models/day.js';
 import { Phase } from '../models/phase.js';
+import { Haircut } from '../models/haircut.js';
 
 const DETAILS_KEY = 'moon-details';
 const PHASEDETAILS_KEY = 'moonphase-details';
+const HAIRCUTDETAILS_KEY = 'haircut-details';
 
 export async function getAllMoonDetails() {
   if (cache.has(DETAILS_KEY)) return cache.get(DETAILS_KEY);
@@ -13,6 +15,17 @@ export async function getAllMoonDetails() {
   cache.set(DETAILS_KEY, docs, 24 * 60 * 60 * 1000);
   return docs;
 }
+
+export async function getAllHaircutDetails() {
+  if (cache.has(HAIRCUTDETAILS_KEY)) {
+    return cache.get(HAIRCUTDETAILS_KEY);
+  }
+
+  const haircutDocs = await Haircut.find({}).lean();
+  cache.set(HAIRCUTDETAILS_KEY, haircutDocs, 24 * 60 * 60 * 1000);
+  return haircutDocs;
+}
+
 // 1. Отримати всі документи phases (з кешем)
 export async function getAllPhasesDetails() {
   if (cache.has(PHASEDETAILS_KEY)) {
@@ -21,8 +34,6 @@ export async function getAllPhasesDetails() {
   const phaseDocs = await Phase.find({}).lean();
   // Кешуємо на 24 години
   cache.set(PHASEDETAILS_KEY, phaseDocs, 24 * 60 * 60 * 1000);
-  console.log('PHASE DOCS RAW:', phaseDocs);
-
   return phaseDocs;
 }
 
@@ -47,19 +58,40 @@ export async function getDetailsPhaseMap() {
   const phaseDocs = await getAllPhasesDetails();
   const phaseMap = {};
   phaseDocs.forEach((d) => {
-    const num = Number(d.phaseNumber);
-    phaseMap[num] = d;
+    // const num = Number(d.phaseNumber);
+    // phaseMap[num] = d;
 
-    // const { phaseNumber, ...rest } = d;
-    // phaseMap[phaseNumber] = rest;
+    const { phaseNumber, ...rest } = d;
+    phaseMap[phaseNumber] = rest;
   });
 
   phaseMapCache = phaseMap;
   return phaseMap;
 }
 
+let haircutMapCache = null;
+
+export async function getDetailsHaircutMap() {
+  if (haircutMapCache) {
+    return haircutMapCache;
+  }
+  const haircutDocs = await getAllHaircutDetails();
+  const haircutMap = {};
+  haircutDocs.forEach((d) => {
+    const { dayNumber, ...rest } = d;
+    haircutMap[dayNumber] = rest;
+  });
+  haircutMapCache = haircutMap;
+  return haircutMap;
+}
+
 export async function getDetailsByDayNumber(dayNumber) {
   const map = await getDetailsMap();
+  return map[dayNumber] || null;
+}
+
+export async function getDetailsByHaircutNumber(dayNumber) {
+  const map = await getDetailsHaircutMap();
   return map[dayNumber] || null;
 }
 

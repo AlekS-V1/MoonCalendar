@@ -6,9 +6,11 @@ import { getYearCalendar } from '../service/year.js';
 import { deepSearch } from '../service/deepSearch.js';
 import { getMoonDayFromString } from '../service/moon.js';
 import {
+  getAllHaircutDetails,
   getAllMoonDetails,
   getAllPhasesDetails,
   getAllValues,
+  getDetailsByHaircutNumber,
   getDetailsByPhaseNumber,
 } from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
@@ -284,6 +286,42 @@ export async function getPhaseByMoonDay(req, res) {
     res.json(phase);
   } catch (err) {
     console.error('Error in getPhaseByMoonDay:', err);
+    res.status(500).json({ error: 'Failed to load phase' });
+  }
+}
+
+// -- Haircut days ---
+
+// GET /haircutdays
+
+export async function getAllHaircutDays(req, res) {
+  try {
+    const haircutDays = await getAllHaircutDetails();
+    res.json(haircutDays);
+  } catch (error) {
+    console.error('Error in getAllPhases:', error);
+    res.status(500).json({ error: 'Failed to load phases' });
+  }
+}
+
+// GET /haircutbyday?moonDay=1
+export async function getHaircutByMoonDay(req, res) {
+  try {
+    const moonDay = Number(req.query.moonDay);
+
+    if (!moonDay) {
+      return res.status(400).json({ error: 'moonDay is required' });
+    }
+
+    const haircutDay = await getDetailsByHaircutNumber(moonDay);
+
+    if (!haircutDay) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    res.json(haircutDay);
+  } catch (err) {
+    console.error('Error in getHaircutByMoonDay:', err);
     res.status(500).json({ error: 'Failed to load phase' });
   }
 }

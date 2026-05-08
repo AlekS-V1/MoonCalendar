@@ -10,6 +10,8 @@ import {
   getAllPhases,
   getPhaseByMoonDay,
   getPhaseByNumber,
+  getAllHaircutDays,
+  getHaircutByMoonDay,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -54,5 +56,7 @@ router.get(
 router.get('/phases', getAllPhases);
 router.get('/byphase', getPhaseByNumber);
 router.get('/phasebyday', getPhaseByMoonDay);
+router.get('/haircutdays', getAllHaircutDays);
+router.get('/haircutbyday', getHaircutByMoonDay);
 
 export default router;
