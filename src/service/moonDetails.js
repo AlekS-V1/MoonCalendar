@@ -58,11 +58,11 @@ export async function getDetailsPhaseMap() {
   const phaseDocs = await getAllPhasesDetails();
   const phaseMap = {};
   phaseDocs.forEach((d) => {
-    // const num = Number(d.phaseNumber);
-    // phaseMap[num] = d;
+    const num = Number(d.phaseNumber);
+    phaseMap[num] = d;
 
-    const { phaseNumber, ...rest } = d;
-    phaseMap[phaseNumber] = rest;
+    // const { phaseNumber, ...rest } = d;
+    // phaseMap[phaseNumber] = rest;
   });
 
   phaseMapCache = phaseMap;
@@ -78,8 +78,10 @@ export async function getDetailsHaircutMap() {
   const haircutDocs = await getAllHaircutDetails();
   const haircutMap = {};
   haircutDocs.forEach((d) => {
-    const { dayNumber, ...rest } = d;
-    haircutMap[dayNumber] = rest;
+    const num = Number(d.dayNumber);
+    haircutMap[num] = d;
+    // const { dayNumber, ...rest } = d;
+    // haircutMap[dayNumber] = rest;
   });
   haircutMapCache = haircutMap;
   return haircutMap;

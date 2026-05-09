@@ -4,7 +4,11 @@ import { cache } from '../service/cache.js';
 import { buildMonth, buildToday } from '../service/calendar.js';
 import { getYearCalendar } from '../service/year.js';
 import { deepSearch } from '../service/deepSearch.js';
-import { getMoonDayFromString } from '../service/moon.js';
+import {
+  getMoonDay,
+  getMoonDayFromString,
+  getMoonPhase,
+} from '../service/moon.js';
 import {
   getAllHaircutDetails,
   getAllMoonDetails,
@@ -12,6 +16,8 @@ import {
   getAllValues,
   getDetailsByHaircutNumber,
   getDetailsByPhaseNumber,
+  getDetailsHaircutMap,
+  getDetailsPhaseMap,
 } from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
 
@@ -105,10 +111,6 @@ export const getLuckyDay = async (req, res, next) => {
     const key = req.query.key;
     const value = (req.query.value || '').trim();
 
-    console.log('=== Incoming request ===');
-    console.log('KEY:', key);
-    console.log('VALUE:', value);
-
     if (!key) {
       throw createHttpError(400, { errors: ['key is required'] });
     }
@@ -121,8 +123,6 @@ export const getLuckyDay = async (req, res, next) => {
 
     const year = today.getFullYear();
     const days = await getYearCalendar(year);
-
-    console.log('Loaded days:', days.length);
 
     // --- 1. Пошук по ключу та суворому значенню ---
     const matched = days.filter((day) => {
@@ -290,6 +290,38 @@ export async function getPhaseByMoonDay(req, res) {
   }
 }
 
+export async function getTodayPhase(req, res) {
+  try {
+    const today = new Date();
+    const moonDay = getMoonDay(today);
+
+    // 1. Астрономічна фаза (0–1)
+    const rawPhase = getMoonPhase(today);
+
+    // 2. Перетворюємо у редакційний phaseNumber (1–4)
+    const phaseNumber =
+      rawPhase < 0.25 ? 1 : rawPhase < 0.5 ? 2 : rawPhase < 0.75 ? 3 : 4;
+
+    const phaseMap = await getDetailsPhaseMap();
+    const todayPhase = phaseMap[phaseNumber];
+
+    if (!todayPhase) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    return res.json({
+      date: today.toISOString().slice(0, 10),
+      moonDay,
+      rawPhase,
+      phaseNumber,
+      ...todayPhase,
+    });
+  } catch (error) {
+    console.error('Error in getTodayPhase:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
 // -- Haircut days ---
 
 // GET /haircutdays
@@ -323,5 +355,27 @@ export async function getHaircutByMoonDay(req, res) {
   } catch (err) {
     console.error('Error in getHaircutByMoonDay:', err);
     res.status(500).json({ error: 'Failed to load phase' });
+  }
+}
+
+export async function getTodayHaircut(req, res) {
+  try {
+    const today = new Date();
+    const moonDay = getMoonDay(today);
+
+    const haircutMap = await getDetailsHaircutMap();
+    const todayHaircut = haircutMap[moonDay];
+
+    if (!todayHaircut) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    return res.json({
+      date: today.toISOString().slice(0, 10),
+      ...todayHaircut,
+    });
+  } catch (error) {
+    console.error('Error in getTodayHaircut:', error);
+    return res.status(500).json({ error: 'Server error' });
   }
 }

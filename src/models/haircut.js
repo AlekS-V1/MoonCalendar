@@ -12,6 +12,10 @@ const haircutShema = new Schema({
     items: { type: String },
   },
   why: { type: String },
+  recommend: {
+    type: Array,
+    items: { type: String },
+  },
   avoid: {
     type: Array,
     items: { type: String },
