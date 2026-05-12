@@ -310,11 +310,58 @@ export function getMonthCalendar(year, month) {
   return result;
 }
 
+// ---------------------------------------------
+// 6. ПОЧАТОК ТА ДОВЖИНА ДНЯ
+// ---------------------------------------------
+
+export function getCurrentDayStart(date) {
+  const start = getNewMoon(date);
+  const moonDay = getMoonDay(date);
+  return new Date(start.getTime() + (moonDay - 1) * 86400000);
+}
+
+export function getNextDayStart(date) {
+  const start = getNewMoon(date);
+  const moonDay = getMoonDay(date);
+  return new Date(start.getTime() + moonDay * 86400000);
+}
+
+export function getPassedMs(date) {
+  return date - getCurrentDayStart(date);
+}
+export function getDurationMs(date) {
+  return getNextDayStart(date) - getCurrentDayStart(date);
+}
+export function getDurationHours(date) {
+  return getDurationMs(date) / 1000 / 60 / 60;
+}
+export function getPassedHours(date) {
+  return getPassedMs(date) / 1000 / 60 / 60;
+}
+export function getProgress(date) {
+  return Math.min(
+    100,
+    Math.max(0, (getPassedMs(date) / getDurationMs(date)) * 100),
+  );
+}
 // -----------------------------
-// 6. ГОЛОВНА ФУНКЦІЯ
+// 7. ГОЛОВНА ФУНКЦІЯ
 // -----------------------------
+export function getLocalDate(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(12, 0, 0, 0); // нормалізація
+  return d.toLocaleDateString('sv-SE'); // локальна дата
+}
+
+export function getLocalDateForCalc(date = new Date()) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0); // локальний полудень
+  return d;
+}
 
 export function getMoonInfo(date = new Date()) {
+  // const localDate = getLocalDate(date);
+  // const calcDate = getLocalDateForCalc(date);
   return {
     date: date.toISOString(),
     newMoon: getNewMoon(date).toISOString(),
@@ -322,13 +369,18 @@ export function getMoonInfo(date = new Date()) {
     fullMoon: getFullMoon(date).toISOString(),
     lastQuarter: getLastQuarter(date).toISOString(),
     moonDay: getMoonDay(date),
+    currentDayStart: getCurrentDayStart(date),
+    nextDayStart: getNextDayStart(date),
+    durationHours: getDurationHours(date),
+    passedHours: getPassedHours(date),
+    progressDay: Number(getProgress(date).toFixed(2)),
     phase: getMoonPhase(date),
     phaseName: getMoonPhaseName(date),
   };
 }
 
 // ---------------------------------------------
-// 7. ПРИЙМАЄ ДАТУ ТА ПОВЕРТАЄ ЛИШЕ МІСЯЧНИЙ ДЕНЬ
+// 8. ПРИЙМАЄ ДАТУ ТА ПОВЕРТАЄ ЛИШЕ МІСЯЧНИЙ ДЕНЬ
 // ---------------------------------------------
 
 export async function getMoonDayFromString(dateString) {

@@ -25,6 +25,13 @@ export async function buildToday() {
   return {
     date: info.date,
     moonDay: info.moonDay,
+    currentDayStart: info.currentDayStart,
+    nextDayStart: info.nextDayStart,
+    durationHours: info.durationHours,
+    passedHours: info.passedHours,
+    progressDay: info.progressDay,
+    newMoon: info.newMoon,
+    fullMoon: info.fullMoon,
     phase: info.phase,
     phaseName: info.phaseName,
     details: details || {},
