@@ -397,12 +397,23 @@ export async function getMoonDayFromString(dateString) {
   const phase = getMoonPhase(date);
   const phaseName = getMoonPhaseName(date);
 
+  const currentDayStart = getCurrentDayStart(date);
+  const nextDayStart = getNextDayStart(date);
+  const durationHours = getDurationHours(date);
+  const passedHours = getPassedHours(date);
+  const progressDay = Number(getProgress(date).toFixed(2));
+
   const map = await getDetailsMap();
   const details = map[moonDay] || {};
 
   return {
     date: date.toISOString(),
     moonDay,
+    currentDayStart,
+    nextDayStart,
+    durationHours,
+    passedHours,
+    progressDay,
     phase,
     phaseName,
     details,
