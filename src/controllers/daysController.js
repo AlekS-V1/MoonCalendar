@@ -20,6 +20,7 @@ import {
   getDetailsPhaseMap,
 } from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
+import { Haircut } from '../models/haircut.js';
 
 export const getDays = async (req, res) => {
   const moonDay = await Day.find();
@@ -323,6 +324,16 @@ export async function getTodayPhase(req, res) {
 }
 
 // -- Haircut days ---
+
+export const getHaircutDayId = async (req, res) => {
+  const { dayId } = req.params;
+  const moonDay = await Haircut.findById(dayId);
+
+  if (!moonDay) {
+    throw createHttpError(404, 'Day not found!');
+  }
+  res.status(200).json(moonDay);
+};
 
 // GET /haircutdays
 
