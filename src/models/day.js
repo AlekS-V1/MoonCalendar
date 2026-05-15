@@ -153,55 +153,273 @@ const daySchema = new Schema({
   dreams: {
     title: { type: String },
     meaning: { type: String },
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
   },
 
   // Великий вкладений об'єкт
   lifeAspects: {
-    newActivities: String,
-    decisionMaking: String,
-    business: String,
-    money: String,
-    realEstate: String,
-    trade: String,
-    legalMatters: String,
-    science: String,
-    art: String,
-    creativity: String,
-    learningExams: String,
-    communication: String,
-    confrontation: String,
-    bossCommunication: String,
-    jobChange: String,
-    travel: String,
-    movement: String,
-    rest: String,
-    physicalActivity: String,
-    housework: String,
-    marriage: String,
-    intimacy: String,
-    conception: String,
+    newActivities: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    decisionMaking: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    business: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    money: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    realEstate: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    trade: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    legalMatters: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    science: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    art: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    creativity: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    learningExams: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    communication: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    confrontation: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    bossCommunication: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    jobChange: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    travel: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    movement: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    rest: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    physicalActivity: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    housework: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    marriage: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    intimacy: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    conception: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
   },
 
   birthOnThisDay: {
     title: String,
     description: String,
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
   },
 
   health: {
-    general: String,
-    vulnerableBodyPart: String,
-    medications: String,
+    general: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    vulnerableBodyPart: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
+    medications: {
+      text: String,
+      rating: {
+        value: Number,
+        scale: Number,
+        meaning: String,
+      },
+    },
   },
 
-  nutrition: String,
-  alcohol: String,
-  smoking: String,
+  nutrition: {
+    text: String,
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
+  },
+  alcohol: {
+    text: String,
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
+  },
+  smoking: {
+    text: String,
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
+  },
 
   // Друге вкладене посилання
   haircut: {
     haircutId: { type: Schema.Types.ObjectId, ref: 'Haircut' },
     lunarCalendar: String,
     tibetanCalendar: String,
+    rating: {
+      value: Number,
+      scale: Number,
+      meaning: String,
+    },
   },
 
   symbols: [String],
