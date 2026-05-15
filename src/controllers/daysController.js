@@ -23,13 +23,19 @@ import { formatMoonDay } from '../service/formatSearch.js';
 import { Haircut } from '../models/haircut.js';
 
 export const getDays = async (req, res) => {
-  const moonDay = await Day.find();
+  const moonDay = await Day.find().populate([
+    { path: 'phase.phaseId' },
+    { path: 'haircut.haircutId' },
+  ]);
   res.status(200).json({ moonDay });
 };
 
 export const getDayId = async (req, res) => {
   const { dayId } = req.params;
-  const moonDay = await Day.findById(dayId);
+  const moonDay = await Day.findById(dayId).populate([
+    { path: 'phase.phaseId' },
+    { path: 'haircut.haircutId' },
+  ]);
 
   if (!moonDay) {
     throw createHttpError(404, 'Day not found!');
