@@ -45,9 +45,23 @@ export const getDayId = async (req, res) => {
 
 export const getToday = async (req, res) => {
   const key = 'today';
+  // 1. Якщо дані є в кеші — миттєво повертаємо їх
   if (cache.has(key)) return res.json(cache.get(key));
+  // 2. Якщо в кеші пусто — будуємо нові актуальні дані
   const data = await buildToday();
-  cache.set(key, data, 24 * 60 * 60 * 1000);
+  // 3. Вираховуємо, скільки часу залишилося до кінця цього місячного дня
+  const now = new Date().getTime();
+  const endTime = new Date(data.nextDayStart).getTime();
+
+  // Час життя кешу = кінець дня мінус поточний момент
+  const timeToLive = endTime - now;
+
+  // Безпечна перевірка: якщо раптом час уже минув, ставимо мінімальний кеш на 1 хвилину
+  const cacheDuration = timeToLive > 0 ? timeToLive : 60 * 1000;
+
+  // 4. Записуємо в кеш рівно до моменту зміни місячної доби
+
+  cache.set(key, data, cacheDuration);
   res.json(data);
 };
 
@@ -374,6 +388,8 @@ export async function getHaircutByMoonDay(req, res) {
     res.status(500).json({ error: 'Failed to load phase' });
   }
 }
+
+// GET /todayhaircut
 
 export async function getTodayHaircut(req, res) {
   try {
