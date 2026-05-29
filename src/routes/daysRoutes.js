@@ -15,6 +15,7 @@ import {
   getTodayPhase,
   getTodayHaircut,
   getHaircutDayId,
+  getHaircutDayByDate,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -65,5 +66,12 @@ router.get('/haircutday/:dayId', getHaircutDayId);
 router.get('/haircutdays', getAllHaircutDays);
 router.get('/haircutbyday', getHaircutByMoonDay);
 router.get('/todayhaircut', getTodayHaircut);
+router.get(
+  '/haircut-day',
+  validateParams({
+    date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
+  }),
+  getHaircutDayByDate,
+);
 
 export default router;

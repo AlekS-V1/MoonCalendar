@@ -7,6 +7,7 @@ import { deepSearch } from '../service/deepSearch.js';
 import {
   getMoonDay,
   getMoonDayFromString,
+  getMoonDayFromStringHaircut,
   getMoonPhase,
 } from '../service/moon.js';
 import {
@@ -159,7 +160,7 @@ export const getLuckyDay = async (req, res, next) => {
       return matches.length > 0;
     });
 
-    console.log('Matched days before unique:', matched.length);
+    // console.log('Matched days before unique:', matched.length);
 
     // --- 2. Унікалізація днів за _id та датою ---
     const unique = [];
@@ -412,3 +413,22 @@ export async function getTodayHaircut(req, res) {
     return res.status(500).json({ error: 'Server error' });
   }
 }
+
+// ---  Пошук дня стріжки за датою календаря ---
+
+export const getHaircutDayByDate = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required (YYYY-MM-DD)' });
+    }
+
+    const result = await getMoonDayFromStringHaircut(date);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+    next(err);
+  }
+};
