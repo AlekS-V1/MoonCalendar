@@ -453,6 +453,6 @@ export async function getMoonDayFromStringHaircut(dateString) {
     durationHours,
     passedHours,
     progressDay,
-    details,
+    ...details,
   };
 }
