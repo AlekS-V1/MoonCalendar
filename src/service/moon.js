@@ -128,7 +128,11 @@
 
 // lib/moon.js
 import { julian } from 'astronomia';
-import { getDetailsHaircutMap, getDetailsMap } from './moonDetails.js';
+import {
+  getDetailsHaircutMap,
+  getDetailsMap,
+  getRitualsMap,
+} from './moonDetails.js';
 
 const SYNODIC_MONTH = 29.530588861;
 
@@ -448,6 +452,47 @@ export async function getMoonDayFromStringHaircut(dateString) {
   return {
     date: date.toISOString(),
     moonDay,
+    currentDayStart,
+    nextDayStart,
+    durationHours,
+    passedHours,
+    progressDay,
+    ...details,
+  };
+}
+
+// ---------------------------------------------
+// 10. ПРИЙМАЄ ДАТУ ТА ПОВЕРТАЄ ЛИШЕ МІСЯЧНИЙ ДЕНЬ З КАЛЕДАРЯ РИТУАЛІВ
+// ---------------------------------------------
+
+export async function getMoonDayFromStringRitual(dateString) {
+  // Перевірка формату YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    throw new Error('Невірний формат дати. Використовуйте YYYY-MM-DD');
+  }
+
+  const now = new Date().toISOString().slice(0, 10);
+  const [year, month, day] = dateString.split('-').map(Number);
+  let date;
+  // Створення дати в UTC (важливо для астрономічних розрахунків)
+  dateString === now
+    ? (date = new Date())
+    : (date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
+
+  const dayRitual = getMoonDay(date);
+
+  const currentDayStart = getCurrentDayStart(date);
+  const nextDayStart = getNextDayStart(date);
+  const durationHours = getDurationHours(date);
+  const passedHours = getPassedHours(date);
+  const progressDay = Number(getProgress(date).toFixed(2));
+
+  const map = await getRitualsMap();
+  const details = map[dayRitual] || {};
+
+  return {
+    date: date.toISOString(),
+    dayRitual,
     currentDayStart,
     nextDayStart,
     durationHours,

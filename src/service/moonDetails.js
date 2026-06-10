@@ -2,10 +2,12 @@ import { cache } from './cache.js';
 import { Day } from '../models/day.js';
 import { Phase } from '../models/phase.js';
 import { Haircut } from '../models/haircut.js';
+import { Ritual } from '../models/ritual.js';
 
 const DETAILS_KEY = 'moon-details';
 const PHASEDETAILS_KEY = 'moonphase-details';
 const HAIRCUTDETAILS_KEY = 'haircut-details';
+const RITUALDETAILS_KEY = 'ritual-details';
 
 export async function getAllMoonDetails() {
   if (cache.has(DETAILS_KEY)) return cache.get(DETAILS_KEY);
@@ -115,3 +117,26 @@ export const getAllValues = (obj) => {
   }
   return values;
 };
+
+// --- Rituals ---
+
+// 1. Отримати всі документи рітуалів (з кешем)
+export async function getAllRitualDetails() {
+  if (cache.has(RITUALDETAILS_KEY)) {
+    return cache.get(RITUALDETAILS_KEY);
+  }
+  const ritualDocs = await Ritual.find({}).lean();
+  // Кешуємо на 24 години
+  cache.set(RITUALDETAILS_KEY, ritualDocs, 24 * 60 * 60 * 1000);
+  return ritualDocs;
+}
+
+export async function getRitualsMap() {
+  const docs = await getAllRitualDetails();
+  const map = {};
+  docs.forEach((d) => {
+    const { day, ...rest } = d;
+    map[day] = rest;
+  });
+  return map;
+}

@@ -16,6 +16,8 @@ import {
   getTodayHaircut,
   getHaircutDayId,
   getHaircutDayByDate,
+  getTodayRitual,
+  getRitualDayByDate,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -72,6 +74,15 @@ router.get(
     date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
   }),
   getHaircutDayByDate,
+);
+
+router.get('/todayritual', getTodayRitual);
+router.get(
+  '/ritual-day',
+  validateParams({
+    date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
+  }),
+  getRitualDayByDate,
 );
 
 export default router;

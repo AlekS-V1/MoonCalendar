@@ -8,6 +8,7 @@ import {
   getMoonDay,
   getMoonDayFromString,
   getMoonDayFromStringHaircut,
+  getMoonDayFromStringRitual,
   getMoonPhase,
 } from '../service/moon.js';
 import {
@@ -19,6 +20,7 @@ import {
   getDetailsByPhaseNumber,
   getDetailsHaircutMap,
   getDetailsPhaseMap,
+  // getRitualsMap,
 } from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
 import { Haircut } from '../models/haircut.js';
@@ -425,6 +427,67 @@ export const getHaircutDayByDate = async (req, res, next) => {
     }
 
     const result = await getMoonDayFromStringHaircut(date);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+    next(err);
+  }
+};
+
+// --- RITUAL --- //
+
+// GET /todayritual
+
+export async function getTodayRitual(req, res) {
+  try {
+    const key = 'todayRitual';
+
+    if (cache.has(key)) return res.json(cache.get(key));
+    const todayDate = new Date();
+    // const moonDay = getMoonDay(today);
+    const moonDay = todayDate.toISOString().slice(0, 10);
+
+    // const ritualMap = await getRitualsMap();
+    const todayRitual = await getMoonDayFromStringRitual(moonDay);
+    // const todayRitual = ritualMap[moonDay];
+
+    const now = new Date().getTime();
+    const endTime = new Date(todayRitual.nextDayStart).getTime();
+
+    const timeToLive = endTime - now;
+
+    const cacheDuration = timeToLive > 0 ? timeToLive : 5 * 60 * 1000;
+
+    // 4. Записуємо в кеш рівно до моменту зміни місячної доби
+
+    cache.set(key, todayRitual, cacheDuration);
+
+    if (!todayRitual) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    return res.json({
+      // date: today.toISOString().slice(0, 10),
+      ...todayRitual,
+    });
+  } catch (error) {
+    console.error('Error in getTodayRitual:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
+// ---  Пошук дня рітуала за датою календаря ---
+
+export const getRitualDayByDate = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required (YYYY-MM-DD)' });
+    }
+
+    const result = await getMoonDayFromStringRitual(date);
 
     res.json(result);
   } catch (err) {
