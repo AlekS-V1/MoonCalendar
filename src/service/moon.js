@@ -472,14 +472,14 @@ export async function getMoonDayFromStringRitual(dateString) {
   }
 
   const now = new Date().toISOString().slice(0, 10);
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year, month, curDay] = dateString.split('-').map(Number);
   let date;
   // Створення дати в UTC (важливо для астрономічних розрахунків)
   dateString === now
     ? (date = new Date())
-    : (date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)));
+    : (date = new Date(Date.UTC(year, month - 1, curDay, 12, 0, 0)));
 
-  const dayRitual = getMoonDay(date);
+  const day = getMoonDay(date);
 
   const currentDayStart = getCurrentDayStart(date);
   const nextDayStart = getNextDayStart(date);
@@ -488,11 +488,11 @@ export async function getMoonDayFromStringRitual(dateString) {
   const progressDay = Number(getProgress(date).toFixed(2));
 
   const map = await getRitualsMap();
-  const details = map[dayRitual] || {};
+  const details = map[day] || {};
 
   return {
     date: date.toISOString(),
-    dayRitual,
+    day,
     currentDayStart,
     nextDayStart,
     durationHours,

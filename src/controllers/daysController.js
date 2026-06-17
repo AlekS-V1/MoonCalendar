@@ -438,6 +438,8 @@ export const getHaircutDayByDate = async (req, res, next) => {
 
 // --- RITUAL --- //
 
+// GET /ritual-day/:id
+
 export const getMeditationDayId = async (req, res) => {
   const { dayId } = req.params;
   const moonDay = await Ritual.findById(dayId);
