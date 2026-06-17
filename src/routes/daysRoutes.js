@@ -18,6 +18,7 @@ import {
   getHaircutDayByDate,
   getTodayRitual,
   getRitualDayByDate,
+  getMeditationDayId,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -76,6 +77,7 @@ router.get(
   getHaircutDayByDate,
 );
 
+router.get('/ritual-day/:dayId', getMeditationDayId);
 router.get('/todayritual', getTodayRitual);
 router.get(
   '/ritual-day',

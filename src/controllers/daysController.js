@@ -24,6 +24,7 @@ import {
 } from '../service/moonDetails.js';
 import { formatMoonDay } from '../service/formatSearch.js';
 import { Haircut } from '../models/haircut.js';
+import { Ritual } from '../models/ritual.js';
 
 export const getDays = async (req, res) => {
   const moonDay = await Day.find().populate([
@@ -346,7 +347,7 @@ export async function getTodayPhase(req, res) {
   }
 }
 
-// -- Haircut days ---
+// -- Haircut days ID ---
 
 export const getHaircutDayId = async (req, res) => {
   const { dayId } = req.params;
@@ -436,6 +437,16 @@ export const getHaircutDayByDate = async (req, res, next) => {
 };
 
 // --- RITUAL --- //
+
+export const getMeditationDayId = async (req, res) => {
+  const { dayId } = req.params;
+  const moonDay = await Ritual.findById(dayId);
+
+  if (!moonDay) {
+    throw createHttpError(404, 'Day not found!');
+  }
+  res.status(200).json(moonDay);
+};
 
 // GET /todayritual
 
