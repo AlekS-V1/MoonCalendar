@@ -424,7 +424,10 @@ const daySchema = new Schema({
 
   symbols: [String],
   stones: [String],
-  meditations: [String],
+  meditations: {
+    meditationId: { type: Schema.Types.ObjectId, ref: 'Ritual' },
+    text: [String],
+  },
 
   // Об'єкт, що містить масиви
   signs: {
