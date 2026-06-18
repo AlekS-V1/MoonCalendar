@@ -27,10 +27,7 @@ import { Haircut } from '../models/haircut.js';
 import { Ritual } from '../models/ritual.js';
 
 export const getDays = async (req, res) => {
-  const moonDay = await Day.find().populate([
-    { path: 'phase.phaseId' },
-    { path: 'haircut.haircutId' },
-  ]);
+  const moonDay = await Day.find();
   res.status(200).json({ moonDay });
 };
 
@@ -39,6 +36,7 @@ export const getDayId = async (req, res) => {
   const moonDay = await Day.findById(dayId).populate([
     { path: 'phase.phaseId' },
     { path: 'haircut.haircutId' },
+    { path: 'meditations.meditationId' },
   ]);
 
   if (!moonDay) {
