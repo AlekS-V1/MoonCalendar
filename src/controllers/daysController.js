@@ -8,11 +8,13 @@ import {
   getMoonDay,
   getMoonDayFromString,
   getMoonDayFromStringHaircut,
+  getMoonDayFromStringMagic,
   getMoonDayFromStringRitual,
   getMoonPhase,
 } from '../service/moon.js';
 import {
   getAllHaircutDetails,
+  getAllMagicDetails,
   getAllMoonDetails,
   getAllPhasesDetails,
   getAllValues,
@@ -25,6 +27,7 @@ import {
 import { formatMoonDay } from '../service/formatSearch.js';
 import { Haircut } from '../models/haircut.js';
 import { Ritual } from '../models/ritual.js';
+import { Magic } from '../models/magic.js';
 
 export const getDays = async (req, res) => {
   const moonDay = await Day.find();
@@ -499,6 +502,86 @@ export const getRitualDayByDate = async (req, res, next) => {
     }
 
     const result = await getMoonDayFromStringRitual(date);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+    next(err);
+  }
+};
+
+// -- Magic days ID ---
+// GET /magic-day/:id
+export const getMagicDayId = async (req, res) => {
+  const { dayId } = req.params;
+  const moonDay = await Magic.findById(dayId);
+
+  if (!moonDay) {
+    throw createHttpError(404, 'Day not found!');
+  }
+  res.status(200).json(moonDay);
+};
+
+// GET /magicdays
+
+export async function getAllMagicDays(req, res) {
+  try {
+    const magicDays = await getAllMagicDetails();
+    res.json(magicDays);
+  } catch (error) {
+    console.error('Error in getAllMagic:', error);
+    res.status(500).json({ error: 'Failed to load phases' });
+  }
+}
+
+// GET /todaymagic
+
+export async function getTodayMagic(req, res) {
+  try {
+    const key = 'todayMagic';
+
+    if (cache.has(key)) return res.json(cache.get(key));
+    const todayDate = new Date();
+
+    const moonDay = todayDate.toISOString().slice(0, 10);
+
+    const todayMagic = await getMoonDayFromStringMagic(moonDay);
+
+    const now = new Date().getTime();
+    const endTime = new Date(todayMagic.nextDayStart).getTime();
+
+    const timeToLive = endTime - now;
+
+    const cacheDuration = timeToLive > 0 ? timeToLive : 5 * 60 * 1000;
+
+    // 4. Записуємо в кеш рівно до моменту зміни місячної доби
+
+    cache.set(key, todayMagic, cacheDuration);
+
+    if (!todayMagic) {
+      return res.status(404).json({ error: 'Phase not found' });
+    }
+
+    return res.json({
+      ...todayMagic,
+    });
+  } catch (error) {
+    console.error('Error in getTodayMagic:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+}
+
+// ---  Пошук дня з окультним рітуалом за датою календаря ---
+
+export const getMagicDayByDate = async (req, res, next) => {
+  try {
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({ error: 'date is required (YYYY-MM-DD)' });
+    }
+
+    const result = await getMoonDayFromStringMagic(date);
 
     res.json(result);
   } catch (err) {

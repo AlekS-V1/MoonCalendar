@@ -3,11 +3,13 @@ import { Day } from '../models/day.js';
 import { Phase } from '../models/phase.js';
 import { Haircut } from '../models/haircut.js';
 import { Ritual } from '../models/ritual.js';
+import { Magic } from '../models/magic.js';
 
 const DETAILS_KEY = 'moon-details';
 const PHASEDETAILS_KEY = 'moonphase-details';
 const HAIRCUTDETAILS_KEY = 'haircut-details';
 const RITUALDETAILS_KEY = 'ritual-details';
+const MAGICDETAILS_KEY = 'magic-details';
 
 export async function getAllMoonDetails() {
   if (cache.has(DETAILS_KEY)) return cache.get(DETAILS_KEY);
@@ -37,6 +39,16 @@ export async function getAllPhasesDetails() {
   // Кешуємо на 24 години
   cache.set(PHASEDETAILS_KEY, phaseDocs, 24 * 60 * 60 * 1000);
   return phaseDocs;
+}
+
+export async function getAllMagicDetails() {
+  if (cache.has(MAGICDETAILS_KEY)) {
+    return cache.get(MAGICDETAILS_KEY);
+  }
+
+  const magicDocs = await Magic.find({}).lean();
+  cache.set(MAGICDETAILS_KEY, magicDocs, 24 * 60 * 60 * 1000);
+  return magicDocs;
 }
 
 export async function getDetailsMap() {
@@ -133,6 +145,18 @@ export async function getAllRitualDetails() {
 
 export async function getRitualsMap() {
   const docs = await getAllRitualDetails();
+  const map = {};
+  docs.forEach((d) => {
+    const { day, ...rest } = d;
+    map[day] = rest;
+  });
+  return map;
+}
+
+// ---
+
+export async function getMagicsMap() {
+  const docs = await getAllMagicDetails();
   const map = {};
   docs.forEach((d) => {
     const { day, ...rest } = d;

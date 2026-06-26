@@ -131,6 +131,7 @@ import { julian } from 'astronomia';
 import {
   getDetailsHaircutMap,
   getDetailsMap,
+  getMagicsMap,
   getRitualsMap,
 } from './moonDetails.js';
 
@@ -488,6 +489,47 @@ export async function getMoonDayFromStringRitual(dateString) {
   const progressDay = Number(getProgress(date).toFixed(2));
 
   const map = await getRitualsMap();
+  const details = map[day] || {};
+
+  return {
+    date: date.toISOString(),
+    day,
+    currentDayStart,
+    nextDayStart,
+    durationHours,
+    passedHours,
+    progressDay,
+    ...details,
+  };
+}
+
+// ---------------------------------------------
+// 11. ПРИЙМАЄ ДАТУ ТА ПОВЕРТАЄ ЛИШЕ МІСЯЧНИЙ ДЕНЬ З КАЛЕДАРЯ ОКУЛЬТНИХ РИТУАЛІВ
+// ---------------------------------------------
+
+export async function getMoonDayFromStringMagic(dateString) {
+  // Перевірка формату YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    throw new Error('Невірний формат дати. Використовуйте YYYY-MM-DD');
+  }
+
+  const now = new Date().toISOString().slice(0, 10);
+  const [year, month, curDay] = dateString.split('-').map(Number);
+  let date;
+  // Створення дати в UTC (важливо для астрономічних розрахунків)
+  dateString === now
+    ? (date = new Date())
+    : (date = new Date(Date.UTC(year, month - 1, curDay, 12, 0, 0)));
+
+  const day = getMoonDay(date);
+
+  const currentDayStart = getCurrentDayStart(date);
+  const nextDayStart = getNextDayStart(date);
+  const durationHours = getDurationHours(date);
+  const passedHours = getPassedHours(date);
+  const progressDay = Number(getProgress(date).toFixed(2));
+
+  const map = await getMagicsMap();
   const details = map[day] || {};
 
   return {

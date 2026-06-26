@@ -19,6 +19,10 @@ import {
   getTodayRitual,
   getRitualDayByDate,
   getMeditationDayId,
+  getMagicDayId,
+  getAllMagicDays,
+  getTodayMagic,
+  getMagicDayByDate,
 } from '../controllers/daysController.js';
 import { heavyLimiter, searchLimiter } from '../middleware/index.js';
 import { validateParams } from '../middleware/validate.js';
@@ -85,6 +89,17 @@ router.get(
     date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
   }),
   getRitualDayByDate,
+);
+
+router.get('/magic-day/:dayId', getMagicDayId);
+router.get('/magicdays', getAllMagicDays);
+router.get('/todaymagic', getTodayMagic);
+router.get(
+  '/magic-day',
+  validateParams({
+    date: { required: true, type: 'string', pattern: /^\d{4}-\d{2}-\d{2}$/ },
+  }),
+  getMagicDayByDate,
 );
 
 export default router;
